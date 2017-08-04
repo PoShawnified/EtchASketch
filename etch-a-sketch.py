@@ -1,10 +1,16 @@
 #Etch-a-Sketchy
-from tkinter import*
+try:
+    #for Python2
+    from Tkinter import *
+except ImportError:
+    #for Python3
+    from tkinter import *
+
 #Set variables
 canvas_height = 720
 canvas_width = 1280
-canvas_pos_X = 400
-canvas_pos_Y = 400
+canvas_pos_X = 50
+canvas_pos_Y = 50
 canvas_color = "gray"
 
 #Set the initial cursor start position
@@ -59,9 +65,9 @@ window.geometry('%dx%d+%d+%d' % (canvas_width, canvas_height, canvas_pos_X, canv
 window.resizable(width=False, height=False)
 
 #Sets the window to "borderless"
-window.overrideredirect(1)
+window.attributes('-fullscreen', True)
 
-#No longer needed when using overrideredirect
+#No longer needed when using attributes('-fullscreen', True)
 #window.title("Etch-a-Sketchy")
 
 canvas = Canvas(bg=canvas_color, height=canvas_height, width=canvas_width, highlightthickness=0)
@@ -72,7 +78,11 @@ window.bind("<Up>",Move_N)
 window.bind("<Right>",Move_E)
 window.bind("<Down>",Move_S)
 window.bind("<Left>",Move_W)
-window.bind("s",forget)
+window.bind("w",Move_N)
+window.bind("d",Move_E)
+window.bind("s",Move_S)
+window.bind("a",Move_W)
+window.bind("c",forget)
 window.bind("q",exit)
 
 #Open the window
