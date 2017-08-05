@@ -1,140 +1,135 @@
 #Etchy-ah-Sketchy
-try:
-    #for Python2
-    from Tkinter import *
-except ImportError:
-    #for Python3
-    from tkinter import *
 
-#Set variables
+#Import libs
+try:
+  #For Python2
+  from Tkinter import *
+except ImportError:
+  #For Python3
+  from tkinter import *
+
+#****** Set variables ******#
 canvas_width  = 1280
 canvas_height = 720
 canvas_pos_X  = 50
 canvas_pos_Y  = 50
 canvas_color  = "gainsboro"
 
-#Set the initial cursor start position
+  #Set the initial cursor position
 cursorX=canvas_width/2
 cursorY=canvas_height/2
 
-#Set the line color/width
-line_colors = ["black", "red", "forestgreen", "royalblue", "gainsboro"]
-current_line_color = line_colors[0]
-line_width  = 2
-line_length = 2
+  #Set the line color/width/shape
+line_colors        = ["black", "red", "forestgreen", "royalblue", "gainsboro"]
+line_current_color = line_colors[0]
+line_width         = 2
+line_length        = 2
+line_capstyle      = "round"
+line_joinstyle     = "round"
 
-#functions:
-#arrow="last", stipple="gray75"
-def Move_Up(self):
-	global cursorY
-	if cursorY > 0:
-		canvas.create_line(cursorX, 
-											 cursorY, 
-											 cursorX, 
-											 (cursorY - line_length), 
-											 width=line_width, 
-											 fill=current_line_color, 
-											 capstyle="round", 
-											 joinstyle="round")
-		cursorY = (cursorY - line_length)
-
-def Move_Down(self):
-	global cursorY
-	if cursorY < canvas_height:
-		canvas.create_line(cursorX, 
-											 cursorY, 
-											 cursorX, 
-											 (cursorY + line_length), 
-											 width=line_width, 
-											 fill=current_line_color, 
-											 capstyle="round", 
-											 joinstyle="round")
-		cursorY = (cursorY + line_length)
-
-def Move_Left(self):
+#****** Functions ******#
+def Move_Cursor(self, direction):
 	global cursorX
-	if cursorX > 0:
-		canvas.create_line(cursorX, 
-											 cursorY, 
-											 (cursorX - line_length), 
-											 cursorY, 
-											 width=line_width, 
-											 fill=current_line_color, 
-											 capstyle="round", 
-											 joinstyle="round")
-		cursorX = (cursorX - line_length)
+	global cursorY
+	global line_capstyle 
+	global line_joinstyle 
 
-def Move_Right(self):
-	global cursorX
-	if cursorX < (canvas_width - (line_width/2)):
-		canvas.create_line(cursorX, 
-											 cursorY, 
-											 (cursorX + line_length), 
-											 cursorY, 
-											 width=line_width, 
-											 fill=current_line_color, 
-											 capstyle="round", 
-											 joinstyle="round")
-		cursorX = (cursorX + line_length)
+  #Needed so we don't lose track of the initial cursor position
+	pvtX = cursorX
+	pvtY = cursorY
+
+  #Select which direction to expand the line
+	if direction == "up":
+		if cursorY > 0:
+			cursorY = (cursorY - line_length)
+
+	if direction == "down":
+		if cursorY < canvas_height:
+			cursorY = (cursorY + line_length)	
+
+	if direction == "left":
+		if cursorX > 0:
+			cursorX = (cursorX - line_length)
+		
+	if direction == "right":
+		if cursorX < (canvas_width - (line_width/2)):
+			cursorX = (cursorX + line_length)
+
+  #Updates the lines (potential other options: arrow="last", stipple="gray75")
+	canvas.create_line(pvtX, 
+										 pvtY, 
+										 cursorX, 
+										 cursorY, 
+										 width=line_width, 
+										 fill=line_current_color, 
+										 capstyle=line_capstyle , 
+										 joinstyle=line_joinstyle)
 
 def Clear_Screen(self):
-#function to clear the screen
+  #Function to clear the screen
+
 	global canvas
 	global cursorX
 	global cursorY
+	global line_current_color
+	
 	canvas.destroy()
 	canvas = Canvas(bg=canvas_color, height=canvas_height, width=canvas_width, highlightthickness=0)
 	canvas.pack()
 	cursorX = canvas_width/2
 	cursorY = canvas_height/2
+	line_current_color = line_colors[0]
 
 def Change_Color_Right(self):
-#function to change the line color 
-#by cycling through the color list
-	global current_line_color
-	if line_colors.index(current_line_color) == (len(line_colors)-1):
-		current_line_color = line_colors[0]
+  #Function to change the line color 
+  #by cycling through the color list
+
+	global line_current_color
+	if line_colors.index(line_current_color) == (len(line_colors)-1):
+		line_current_color = line_colors[0]
 	else:
-		current_line_color = line_colors[line_colors.index(current_line_color)+1]
+		line_current_color = line_colors[line_colors.index(line_current_color)+1]
 
 def Change_Color_Left(self):
-#function to change the line color 
-#by cycling through the color list
+  #Function to change the line color 
+  #by cycling through the color list
+	
 	global line_colors
-	global current_line_color
-	if line_colors.index(current_line_color) == line_colors[0]:
-		current_line_color = line_colors[len(line_colors)-1]
+	global line_current_color
+	if line_colors.index(line_current_color) == line_colors[0]:
+		line_current_color = line_colors[len(line_colors)-1]
 	else:
-		current_line_color = line_colors[line_colors.index(current_line_color)-1]
-		
-#main:
+		line_current_color = line_colors[line_colors.index(line_current_color)-1]
+
+def Quit(self):
+	#Function to quit the GUI
+	window.destroy()
+	
+#****** MAIN ******#
 window = Tk()
 
-#Sets, and locks, the window dimensions (width, height, x_position, y_position)
+  #Sets, and locks, the window dimensions (width, height, x_position, y_position)
 window.geometry('%dx%d+%d+%d' % (canvas_width, canvas_height, canvas_pos_X, canvas_pos_Y))
 window.resizable(width=False, height=False)
 
-#Sets the window to "borderless"
+  #Sets the window to "borderless"
 #window.attributes('-fullscreen', True)
 
-#No longer needed when using attributes('-fullscreen', True)
+  #No longer needed when using attributes('-fullscreen', True)
 #window.title("Etchy-ah-Sketchy")
 
 canvas = Canvas(bg=canvas_color, height=canvas_height, width=canvas_width, highlightthickness=0)
 canvas.pack()
 
-#Create the key bindings 
-window.bind("<Up>"   , Move_Up)
-window.bind("<Down>" , Move_Down)
-window.bind("<Left>" , Move_Left)
-window.bind("<Right>", Move_Right)
+  #Create the key bindings 
+window.bind_all("<Up>"   , lambda self:Move_Cursor(self,"up"))
+window.bind_all("<Down>" , lambda self:Move_Cursor(self,"down"))
+window.bind_all("<Left>" , lambda self:Move_Cursor(self,"left"))
+window.bind_all("<Right>", lambda self:Move_Cursor(self,"right"))
+window.bind_all("1", Change_Color_Left)   #Moves one color to the left
+window.bind_all("2", Change_Color_Right)  #Moves one color to the right
+window.bind_all("c", Clear_Screen)        #Clears the screen
+window.bind_all("q", Quit)                #Obviously used to quit
 
-window.bind("1", Change_Color_Left)
-window.bind("2", Change_Color_Right)
-
-window.bind("c", Clear_Screen) 
-
-window.bind("q", exit)   #Obviously used to quit
-
-#Open the window
+  #Open the window
 window.mainloop()
