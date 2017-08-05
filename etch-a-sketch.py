@@ -6,6 +6,7 @@ try:
 except ImportError:
   print "RPi.GPIO not found... "
   print "You'll be limited to keystroke input"
+  GPIO = 0
   
 try:
   #For Python2
@@ -17,8 +18,8 @@ except ImportError:
 #****** Set variables ******#
 canvas_width  = 1280
 canvas_height = 720
-canvas_pos_X  = 50
-canvas_pos_Y  = 50
+canvas_pos_X  = 0
+canvas_pos_Y  = 0
 canvas_color  = "gainsboro"
 
   #Set the initial cursor position
@@ -26,10 +27,10 @@ cursorX=canvas_width/2
 cursorY=canvas_height/2
 
   #Set the line color/width/shape
-line_colors        = ["black", "red", "forestgreen", "royalblue", "gainsboro"]
+line_colors        = ["black", "red", "forestgreen", "orange", "royalblue", "fuchsia", "gainsboro"]
 line_current_color = line_colors[0]
-line_width         = 2
-line_length        = 2
+line_width         = 1
+line_length        = 1
 line_capstyle      = "round"
 line_joinstyle     = "round"
 
@@ -119,8 +120,9 @@ window = Tk()
 window.geometry('%dx%d+%d+%d' % (canvas_width, canvas_height, canvas_pos_X, canvas_pos_Y))
 window.resizable(width=False, height=False)
 
-  #Sets the window to "borderless"
-#window.attributes('-fullscreen', True)
+  #Sets the window to "borderless" and hide the mouse
+window.attributes('-fullscreen', True)
+window.config(cursor="none")
 
   #No longer needed when using attributes('-fullscreen', True)
 #window.title("Etchy-ah-Sketchy")
@@ -138,19 +140,19 @@ window.bind_all("2", Change_Color_Right)  #Moves one color to the right
 window.bind_all("c", Clear_Screen)        #Clears the screen
 window.bind_all("q", Quit)                #Obviously used to quit
 
+if GPIO:
+  GPIO.setmode(GPIO.BCM)
 
-GPIO.setmode(GPIO.BCM)
+  GPIO.setup(22, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+  GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+  GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+  GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
-GPIO.setup(22, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-
-GPIO.add_event_detect(22, GPIO.RISING, callback=Quit, bouncetime=300)
-GPIO.add_event_detect(23, GPIO.RISING, callback=Change_Color_Left, bouncetime=300)
-GPIO.add_event_detect(24, GPIO.RISING, callback=Change_Color_Right, bouncetime=300)
-#GPIO.add_event_detect(23, GPIO.RISING, callback=lambda self:Move_Cursor(self, "up"), bouncetime=300)
-GPIO.add_event_detect(27, GPIO.RISING, callback=Clear_Screen, bouncetime=300)
+  GPIO.add_event_detect(22, GPIO.RISING, callback=Quit, bouncetime=200)
+  GPIO.add_event_detect(23, GPIO.RISING, callback=Change_Color_Left, bouncetime=200)
+  GPIO.add_event_detect(24, GPIO.RISING, callback=Change_Color_Right, bouncetime=200)
+  #GPIO.add_event_detect(23, GPIO.RISING, callback=lambda self:Move_Cursor(self, "up"), bouncetime=200)
+  GPIO.add_event_detect(27, GPIO.RISING, callback=Clear_Screen, bouncetime=200)
 
 
   #Open the window
