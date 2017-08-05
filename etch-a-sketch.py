@@ -27,10 +27,19 @@ cursorX=canvas_width/2
 cursorY=canvas_height/2
 
   #Set the line color/width/shape
-line_colors        = ["black", "red", "forestgreen", "orange", "royalblue", "fuchsia", "gainsboro"]
+line_colors        = ["black", 
+                      "red", 
+                      "forestgreen", 
+                      "orange", 
+                      "purple", 
+                      canvas_color, 
+                      "royalblue", 
+                      "gold", 
+                      "fuchsia", 
+                      "palegreen"]
 line_current_color = line_colors[0]
-line_width         = 1
-line_length        = 1
+line_width         = 2
+line_length        = 2
 line_capstyle      = "round"
 line_joinstyle     = "round"
 
@@ -112,6 +121,25 @@ def Move_Cursor(self, direction):
 										 capstyle=line_capstyle , 
 										 joinstyle=line_joinstyle)
 
+def Rotate_Vertical(self, Rotate_Status):
+  while(not GPIO.input(pin_rot_V_dt)):
+    Current_RoA_Status = GPIO.input(pin_rot_V_ck)
+    if (Rotate_Status == 0) and (Current_RoA_Status == 1):
+      Move_Cursor(self,"down")
+      break
+    if (Rotate_Status == 1) and (Current_RoA_Status == 0):
+      Move_Cursor(self,"up")
+      break
+
+def Rotate_Horizontal(self, Rotate_Status):
+  while(not GPIO.input(pin_rot_H_dt)):
+    Current_RoA_Status = GPIO.input(pin_rot_H_ck)
+    if (Rotate_Status == 0) and (Current_RoA_Status == 1):
+      Move_Cursor(self,"right")
+      break
+    if (Rotate_Status == 1) and (Current_RoA_Status == 0):
+      Move_Cursor(self,"left")
+      break
 
 #****** MAIN ******#
 window = Tk()
@@ -141,19 +169,37 @@ window.bind_all("c", Clear_Screen)        #Clears the screen
 window.bind_all("q", Quit)                #Obviously used to quit
 
 if GPIO:
+  #Pin assignments
+  pin_quit         = 22
+  pin_color_right  = 24
+  pin_color_left   = 23
+  pin_clear_screen = 27
+  pin_rot_V_dt     = 17  #Vertical Encoder - DT pin
+  pin_rot_V_ck     = 18  #Vertical Encoder - CLK pin
+  pin_rot_H_dt     = 11  #Horizontal Encoder - DT pin
+  pin_rot_H_ck     = 8   #Horizontal Encoder - CLK pin
+  
   GPIO.setmode(GPIO.BCM)
-
-  GPIO.setup(22, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-  GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-  GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-  GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-
-  GPIO.add_event_detect(22, GPIO.RISING, callback=Quit, bouncetime=200)
-  GPIO.add_event_detect(23, GPIO.RISING, callback=Change_Color_Left, bouncetime=200)
-  GPIO.add_event_detect(24, GPIO.RISING, callback=Change_Color_Right, bouncetime=200)
-  #GPIO.add_event_detect(23, GPIO.RISING, callback=lambda self:Move_Cursor(self, "up"), bouncetime=200)
-  GPIO.add_event_detect(27, GPIO.RISING, callback=Clear_Screen, bouncetime=200)
-
+  
+  #Vertical Rotary Encoders - Set up rotate and click events
+  GPIO.setup(pin_rot_V_dt, GPIO.IN)
+  GPIO.setup(pin_rot_V_ck, GPIO.IN)
+  GPIO.setup(pin_color_left, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+  GPIO.add_event_detect(pin_rot_V_dt, GPIO.FALLING, callback=lambda self:Rotate_Vertical(self, GPIO.input(pin_rot_V_ck))) #, bouncetime=200)
+  GPIO.add_event_detect(pin_color_left, GPIO.FALLING, callback=Change_Color_Left, bouncetime=200)
+  
+  #Horizontal Rotary Encoders - Set up rotate and click events
+  GPIO.setup(pin_rot_H_dt, GPIO.IN)
+  GPIO.setup(pin_rot_H_ck, GPIO.IN)
+  GPIO.setup(pin_color_right, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+  GPIO.add_event_detect(pin_rot_H_dt, GPIO.FALLING, callback=lambda self:Rotate_Horizontal(self, GPIO.input(pin_rot_H_ck))) #, bouncetime=200)
+  GPIO.add_event_detect(pin_color_right, GPIO.FALLING, callback=Change_Color_Right, bouncetime=200)
+  
+  #Buttons - Set up clear screen and quit
+  GPIO.setup(pin_quit, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+  GPIO.setup(pin_clear_screen, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+  GPIO.add_event_detect(pin_quit, GPIO.RISING, callback=Quit, bouncetime=200)
+  GPIO.add_event_detect(pin_clear_screen, GPIO.RISING, callback=Clear_Screen, bouncetime=200)
 
   #Open the window
 window.mainloop()
