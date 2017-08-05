@@ -1,6 +1,12 @@
 #Etchy-ah-Sketchy
 
 #Import libs
+try: 
+  import RPi.GPIO as GPIO
+except ImportError:
+  print "RPi.GPIO not found... "
+  print "You'll be limited to keystroke input"
+  
 try:
   #For Python2
   from Tkinter import *
@@ -28,43 +34,6 @@ line_capstyle      = "round"
 line_joinstyle     = "round"
 
 #****** Functions ******#
-def Move_Cursor(self, direction):
-	global cursorX
-	global cursorY
-	global line_capstyle 
-	global line_joinstyle 
-
-  #Needed so we don't lose track of the initial cursor position
-	pvtX = cursorX
-	pvtY = cursorY
-
-  #Select which direction to expand the line
-	if direction == "up":
-		if cursorY > 0:
-			cursorY = (cursorY - line_length)
-
-	if direction == "down":
-		if cursorY < canvas_height:
-			cursorY = (cursorY + line_length)	
-
-	if direction == "left":
-		if cursorX > 0:
-			cursorX = (cursorX - line_length)
-		
-	if direction == "right":
-		if cursorX < (canvas_width - (line_width/2)):
-			cursorX = (cursorX + line_length)
-
-  #Updates the lines (potential other options: arrow="last", stipple="gray75")
-	canvas.create_line(pvtX, 
-										 pvtY, 
-										 cursorX, 
-										 cursorY, 
-										 width=line_width, 
-										 fill=line_current_color, 
-										 capstyle=line_capstyle , 
-										 joinstyle=line_joinstyle)
-
 def Clear_Screen(self):
   #Function to clear the screen
 
@@ -104,7 +73,45 @@ def Change_Color_Left(self):
 def Quit(self):
 	#Function to quit the GUI
 	window.destroy()
-	
+
+def Move_Cursor(self, direction):
+	global cursorX
+	global cursorY
+	global line_capstyle 
+	global line_joinstyle 
+
+  #Needed so we don't lose track of the initial cursor position
+	pvtX = cursorX
+	pvtY = cursorY
+
+  #Select which direction to expand the line
+	if direction == "up":
+		if cursorY > 0:
+			cursorY = (cursorY - line_length)
+
+	if direction == "down":
+		if cursorY < canvas_height:
+			cursorY = (cursorY + line_length)	
+
+	if direction == "left":
+		if cursorX > 0:
+			cursorX = (cursorX - line_length)
+		
+	if direction == "right":
+		if cursorX < (canvas_width - (line_width/2)):
+			cursorX = (cursorX + line_length)
+
+  #Updates the lines (potential other options: arrow="last", stipple="gray75")
+	canvas.create_line(pvtX, 
+										 pvtY, 
+										 cursorX, 
+										 cursorY, 
+										 width=line_width, 
+										 fill=line_current_color, 
+										 capstyle=line_capstyle , 
+										 joinstyle=line_joinstyle)
+
+
 #****** MAIN ******#
 window = Tk()
 
@@ -130,6 +137,21 @@ window.bind_all("1", Change_Color_Left)   #Moves one color to the left
 window.bind_all("2", Change_Color_Right)  #Moves one color to the right
 window.bind_all("c", Clear_Screen)        #Clears the screen
 window.bind_all("q", Quit)                #Obviously used to quit
+
+
+GPIO.setmode(GPIO.BCM)
+
+GPIO.setup(22, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+
+GPIO.add_event_detect(22, GPIO.RISING, callback=Quit, bouncetime=300)
+GPIO.add_event_detect(23, GPIO.RISING, callback=Change_Color_Left, bouncetime=300)
+GPIO.add_event_detect(24, GPIO.RISING, callback=Change_Color_Right, bouncetime=300)
+#GPIO.add_event_detect(23, GPIO.RISING, callback=lambda self:Move_Cursor(self, "up"), bouncetime=300)
+GPIO.add_event_detect(27, GPIO.RISING, callback=Clear_Screen, bouncetime=300)
+
 
   #Open the window
 window.mainloop()
