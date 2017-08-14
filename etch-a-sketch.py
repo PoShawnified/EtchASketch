@@ -4,7 +4,7 @@
 try: 
   import RPi.GPIO as GPIO
 except ImportError:
-  print ("\r\nRPi.GPIO not found... You'll be limited to keystroke input. \r\n\r\n\tArrows = Wovement\r\n\tc = Clear Screen\r\n\tq = Quit\r\n")
+  print ("\r\nRPi.GPIO not found... You'll be limited to keystroke input. \r\n\r\n\tArrows = Movement\r\n\tc = Clear Screen\r\n\tq = Quit\r\n")
   GPIO = 0
 
 try:
