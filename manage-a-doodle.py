@@ -1,4 +1,5 @@
-#Etchy-ah-Sketchy
+#Manage-A-Doodle
+#@PoShawnified
 
 #************ IMPORT LIBS ************#
 try: 
@@ -160,7 +161,7 @@ window.attributes('-fullscreen', True)
 window.config(cursor="none")
 
 #No longer needed when using attributes('-fullscreen', True)
-#window.title("Etchy-ah-Sketchy")
+#window.title("Manage-A-Doodle")
 
 canvas = Canvas(bg=canvas_color, height=canvas_height, width=canvas_width, highlightthickness=0)
 canvas.pack()
